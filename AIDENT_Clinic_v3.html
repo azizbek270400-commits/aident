@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AIDENT Clinic — Professional</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --bg:#f5f7f6;--card:#fff;--ink:#173b38;--muted:#71817e;--line:#e5ecea;
+  --accent:#2f6f68;--accent2:#dcebe8;--danger:#b84b4b;--warn:#b8823a;
+  --shadow:0 8px 30px rgba(20,55,50,.07);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0f1c1a;--card:#152825;--ink:#e7f3f0;--muted:#8fa5a1;--line:#223934;--accent:#4fa89c;--accent2:#1c3733;--danger:#e08a8a;--warn:#e0b06a;--shadow:0 8px 30px rgba(0,0,0,.4)}
+}
+:root[data-theme="dark"]{--bg:#0f1c1a;--card:#152825;--ink:#e7f3f0;--muted:#8fa5a1;--line:#223934;--accent:#4fa89c;--accent2:#1c3733;--danger:#e08a8a;--warn:#e0b06a;--shadow:0 8px 30px rgba(0,0,0,.4)}
+html,body{height:100%}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.hidden{display:none!important}
+.login{min-height:100%;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0e3833,#173b38 60%,#265851)}
+.loginbox{width:min(430px,100%);background:var(--card);padding:34px;border-radius:24px;box-shadow:var(--shadow)}
+.logo{font-size:30px;font-weight:800;letter-spacing:5px;color:var(--ink);display:flex;align-items:center;gap:10px}
+.sub{color:var(--muted);margin:8px 0 25px;letter-spacing:1px;font-size:12px}
+.field{margin:12px 0}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--ink);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.primary{background:var(--accent);color:#fff;padding:12px 17px;border-radius:11px;font-weight:700;transition:filter .15s}
+.primary:hover{filter:brightness(1.08)}
+.secondary{background:var(--accent2);color:var(--ink);padding:10px 14px;border-radius:10px}
+.danger{background:#fdeaea;color:var(--danger);padding:9px 12px;border-radius:9px}
+.warnbtn{background:#fbf1de;color:var(--warn);padding:9px 12px;border-radius:9px}
+.loginerr{color:var(--danger);font-size:13px;min-height:18px;margin-top:6px}
+.app{display:flex;min-height:100%}
+.side{width:250px;background:#123936;color:#dceae7;padding:22px 15px;position:fixed;top:0;bottom:0;height:100%;padding-top:calc(22px + env(safe-area-inset-top,0px));padding-bottom:calc(22px + env(safe-area-inset-bottom,0px));overflow-y:auto}
+.side .logo{color:#fff;padding:8px 12px 24px;font-size:24px}
+.nav button{width:100%;text-align:left;background:transparent;color:#bdd1ce;padding:11px 14px;border-radius:10px;margin:2px 0;display:flex;align-items:center;gap:10px;font-size:14px}
+.nav button .ic{font-size:16px;width:20px;text-align:center}
+.nav button.active,.nav button:hover{background:#20544f;color:#fff}
+.side hr{border:0;border-top:1px solid #1c4a45;margin:14px 6px}
+.main{margin-left:250px;width:calc(100% - 250px);padding:25px;padding-top:calc(25px + env(safe-area-inset-top,0px))}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px;flex-wrap:wrap}
+.top h1{margin:0;font-size:24px}
+.user{color:var(--muted);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.card{background:var(--card);padding:19px;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.card small{color:var(--muted)}
+.num{font-size:24px;font-weight:800;margin-top:8px}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.panel h3{margin:0 0 14px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--muted);font-weight:600}
+.pill{padding:5px 8px;border-radius:999px;background:var(--accent2);font-size:11px;display:inline-block}
+.pill.debt{background:#fdeaea;color:var(--danger)}
+.pill.paid{background:#e2f3ea;color:#2c7a4b}
+.pill.partial{background:#fbf1de;color:var(--warn)}
+.section{display:none}
+.section.active{display:block}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.toolbar input,.toolbar select{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.tablewrap{overflow-x:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;place-items:center;padding:18px;z-index:5}
+.modal.show{display:grid}
+.modalbox{background:var(--card);border-radius:18px;padding:22px;width:min(640px,100%);max-height:90vh;overflow:auto}
+.modalhead{display:flex;justify-content:space-between;align-items:center}
+.x{background:var(--accent2);color:var(--ink);border-radius:50%;width:32px;height:32px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.full{grid-column:1/-1}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px;flex-wrap:wrap}
+.chart{height:220px;display:flex;align-items:end;gap:8px;padding:15px 5px 25px;border-bottom:1px solid var(--line)}
+.bar{flex:1;background:var(--accent);opacity:.75;border-radius:7px 7px 0 0;min-height:4px;position:relative}
+.bar span{position:absolute;bottom:-22px;font-size:10px;color:var(--muted);left:50%;transform:translateX(-50%)}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+/* tooth chart */
+.mouth{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0}
+.toothrow{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.toothrow.split::after{content:''}
+.tooth{width:32px;height:38px;border-radius:6px;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer;background:var(--card);color:var(--ink);line-height:1.1}
+.tooth .tnum{font-size:10px}
+.t-healthy{background:var(--card);border-color:var(--line)}
+.t-caries{background:#f8d7d7;border-color:#d98f8f;color:#7a2626}
+.t-treated{background:#d8e9f5;border-color:#7fb3d9;color:#204a6b}
+.t-crown{background:#e6d9f2;border-color:#b18fd9;color:#4a2b6b}
+.t-missing{background:#e8e8e8;border-color:#ccc;color:#999;text-decoration:line-through}
+.t-implant{background:#d6efe9;border-color:#66b3a0;color:#1c5c4c}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;font-size:11px;margin-top:6px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.histrow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.debtline{font-weight:700}
+.debtline.zero{color:#2c7a4b}
+.debtline.pos{color:var(--danger)}
+@media(max-width:900px){
+  .side{width:74px}
+  .side .logo{font-size:0}
+  .side .logo:before{content:'🦷';font-size:24px}
+  .nav button{font-size:0;justify-content:center;padding:12px 0}
+  .nav button .ic{font-size:20px}
+  .main{margin-left:74px;width:calc(100% - 74px)}
+  .cards{grid-template-columns:1fr 1fr}
+  .grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .main{padding:14px;padding-top:calc(14px + env(safe-area-inset-top,0px))}
+  .cards{grid-template-columns:1fr}
+  .formgrid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .top{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="login" class="login">
+ <div class="loginbox">
+  <div class="logo">🦷 AIDENT</div><div class="sub">DENTAL CLINIC • PROFESSIONAL</div>
+  <div class="field"><label>Login</label><input id="loginUser" value="admin" autocomplete="username"></div>
+  <div class="field"><label>Parol</label><input id="loginPass" type="password" value="1234" autocomplete="current-password"></div>
+  <div id="loginErr" class="loginerr"></div>
+  <button class="primary" style="width:100%" onclick="doLogin()">Kirish</button>
+  <p style="font-size:12px;color:var(--muted);margin-top:15px">Boshlang‘ich admin: admin / 1234</p>
+ </div>
+</div>
+
+<div id="app" class="app hidden">
+<aside class="side"><div class="logo">🦷 AIDENT</div><div class="nav">
+<button onclick="show('dashboard')" id="n-dashboard"><span class="ic">📊</span>Dashboard</button>
+<button onclick="show('patients')" id="n-patients"><span class="ic">🧍</span>Bemorlar</button>
+<button onclick="show('appointments')" id="n-appointments"><span class="ic">📅</span>Qabullar</button>
+<button onclick="show('reminders')" id="n-reminders"><span class="ic">🔔</span>Eslatmalar</button>
+<hr>
+<button onclick="show('services')" id="n-services"><span class="ic">🧾</span>Xizmatlar</button>
+<button onclick="show('doctors')" id="n-doctors"><span class="ic">🩺</span>Shifokorlar</button>
+<hr>
+<button onclick="show('finance')" id="n-finance"><span class="ic">💰</span>Kirim/Chiqim</button>
+<button onclick="show('debts')" id="n-debts"><span class="ic">💳</span>Qarzlar</button>
+<button onclick="show('reports')" id="n-reports"><span class="ic">📈</span>Hisobotlar</button>
+<hr>
+<button onclick="show('staff')" id="n-staff"><span class="ic">👥</span>Xodimlar</button>
+<button onclick="show('backup')" id="n-backup"><span class="ic">💾</span>Backup</button>
+</div></aside>
+<main class="main">
+<div class="top"><div><h1 id="title">Dashboard</h1><div class="user" id="who"></div></div><div style="display:flex;gap:8px;align-items:center"><span class="user small" id="syncStatus"></span><button class="secondary" onclick="manualRefresh()">🔄 Yangilash</button><button class="secondary" onclick="logout()">Chiqish</button></div></div>
+
+<section id="dashboard" class="section">
+<div class="cards">
+<div class="card"><small>Bugungi kirim</small><div class="num" id="dIn">0 so‘m</div></div>
+<div class="card"><small>Bugungi chiqim</small><div class="num" id="dOut">0 so‘m</div></div>
+<div class="card"><small>Bugungi sof foyda</small><div class="num" id="dProfit">0 so‘m</div></div>
+<div class="card"><small>Bugungi qabul</small><div class="num" id="dAppt">0</div></div>
+</div>
+<div class="grid">
+<div class="panel"><h3>So‘nggi qabullar</h3><div id="dashAppts"></div></div>
+<div class="panel"><h3>Bugungi moliya</h3><div id="dashFin"></div>
+<h3 style="margin-top:18px">Umumiy qarzdorlik</h3><div id="dashDebt"></div></div>
+</div>
+</section>
+
+<section id="patients" class="section"><div class="panel"><div class="toolbar"><input id="pSearch" placeholder="Bemor qidirish..." oninput="renderPatients()"><button class="primary" onclick="openPatient()">+ Bemor qo‘shish</button></div><div class="tablewrap" id="patientsTable"></div></div></section>
+
+<section id="appointments" class="section"><div class="panel"><div class="toolbar"><input type="date" id="aDate" onchange="renderAppointments()"><button class="primary" onclick="openAppt()">+ Qabul qo‘shish</button></div><div class="tablewrap" id="apptTable"></div></div></section>
+
+<section id="reminders" class="section"><div class="panel">
+<p class="muted small">Yaqinlashib kelayotgan qabullar uchun bemorga SMS ilovasi orqali eslatma yuborish (telefon SMS ilovasini ochadi). Avtomatik onlayn SMS yuborish uchun Eskiz.uz/PlayMobile kabi SMS-gateway va backend ulanishi kerak — bu versiyada mavjud emas.</p>
+<div class="tablewrap" id="remindersTable"></div>
+</div></section>
+
+<section id="services" class="section"><div class="panel"><div class="toolbar"><button class="primary" onclick="openService()">+ Xizmat qo‘shish</button></div><div class="tablewrap" id="servicesTable"></div></div></section>
+
+<section id="doctors" class="section"><div class="panel"><div class="toolbar"><button class="primary" onclick="openDoctor()">+ Shifokor qo‘shish</button></div><div class="tablewrap" id="doctorsTable"></div></div></section>
+
+<section id="finance" class="section"><div class="panel"><div class="toolbar"><button class="primary" onclick="openFinance('in')">+ Kirim</button><button class="secondary" onclick="openFinance('out')">+ Chiqim</button></div><div class="tablewrap" id="financeTable"></div></div></section>
+
+<section id="debts" class="section"><div class="panel">
+<div class="toolbar"><label class="small"><input type="checkbox" id="onlyDebt" checked onchange="renderDebts()"> Faqat qarzdorlarni ko‘rsat</label></div>
+<div class="tablewrap" id="debtsTable"></div>
+</div></section>
+
+<section id="reports" class="section">
+<div class="cards"><div class="card"><small>Oylik kirim</small><div class="num" id="rIn">0</div></div><div class="card"><small>Oylik chiqim</small><div class="num" id="rOut">0</div></div><div class="card"><small>Oylik sof foyda</small><div class="num" id="rProfit">0</div></div><div class="card"><small>Jami bemor</small><div class="num" id="rPatients">0</div></div></div>
+<div class="panel" style="margin-top:16px"><h3>Oxirgi 7 kun — kirim</h3><div class="chart" id="chart"></div></div>
+<div class="grid">
+<div class="panel"><h3>Shifokorlar bo‘yicha (shu oy)</h3><div id="rByDoctor"></div></div>
+<div class="panel"><h3>Xizmatlar bo‘yicha (shu oy)</h3><div id="rByService"></div></div>
+</div>
+</section>
+
+<section id="staff" class="section"><div class="panel"><div class="toolbar"><button class="primary" onclick="openStaff()">+ Xodim qo‘shish</button></div><div class="tablewrap" id="staffTable"></div></div></section>
+
+<section id="backup" class="section"><div class="panel"><h3>Ma’lumotlarni himoyalash</h3><p class="muted">Barcha ma’lumotlar endi bulutda (Supabase) saqlanadi — barcha kompyuter va telefonlarda bir xil ma’lumot ko‘rinadi (parollar xavfsiz hash ko‘rinishida). JSON backup faylini muntazam yuklab oling. <b>Diqqat:</b> backup tiklash va tozalash amallari BULUTDAGI barcha qurilmalar uchun ma’lumotni o‘zgartiradi/o‘chiradi.</p><div class="toolbar"><button class="primary" onclick="downloadBackup()">Backup yuklab olish</button><label class="secondary">Backup tiklash (bulutga) <input type="file" accept=".json" onchange="restoreBackup(event)" style="display:none"></label><button class="danger" onclick="resetData()">Bulutdagi barcha ma’lumotni tozalash</button></div></div></section>
+
+</main></div>
+
+<div id="modal" class="modal"><div class="modalbox"><div class="modalhead"><h3 id="mTitle">Qo‘shish</h3><button class="x" onclick="closeModal()">×</button></div><div id="mBody"></div></div></div>
+
+<script>
+const SUPABASE_URL='https://scjdzasndthscjnsxhoe.supabase.co';
+const SUPABASE_KEY='sb_publishable_yBq8u1pXFIW64tdunJgl1g_ijZTBEmP';
+let sb=null, me=null, dataReady=false;
+const TEETH_TOP=[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28];
+const TEETH_BOTTOM=[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+const TOOTH_STATUSES=[['healthy','Sog‘lom'],['caries','Karies'],['treated','Davolangan/Plomba'],['crown','Koronka'],['missing','Yo‘q/Olib tashlangan'],['implant','Implant']];
+
+let S={patients:[],appointments:[],services:[],doctors:[],finance:[],invoices:[],staff:[],salt:null};
+
+const money=n=>new Intl.NumberFormat('uz-UZ').format(Math.round(Number(n||0)))+' so‘m';
+const today=()=>new Date().toISOString().slice(0,10);
+const pn=id=>S.patients.find(x=>x.id==id)?.name||'—';
+const dn=id=>S.doctors.find(x=>x.id==id)?.name||'—';
+const sn=id=>S.services.find(x=>x.id==id)?.name||'—';
+const pp=id=>S.patients.find(x=>x.id==id)?.phone||'';
+
+/* ---------- password hashing ---------- */
+function randSalt(){const b=new Uint8Array(16);crypto.getRandomValues(b);return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function hashPass(pass){const enc=new TextEncoder().encode(S.salt+':'+pass);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+/* ---------- Supabase bootstrap ---------- */
+async function ensureSalt(){
+  const {data,error}=await sb.from('settings').select('*').eq('key','salt').maybeSingle();
+  if(error) throw error;
+  if(data){ S.salt=data.value; }
+  else{ S.salt=randSalt(); const {error:e2}=await sb.from('settings').insert({key:'salt',value:S.salt}); if(e2) throw e2; }
+}
+async function ensureSeed(){
+  const {count:staffCount,error:e1}=await sb.from('staff').select('*',{count:'exact',head:true});
+  if(e1) throw e1;
+  if(!staffCount){
+    const defaults=[['Administrator','admin','1234','admin'],['Xodim 2','staff2','1234','reception'],['Xodim 3','staff3','1234','reception'],['Xodim 4','staff4','1234','reception'],['Xodim 5','staff5','1234','reception']];
+    for(const [name,login,pass,role] of defaults){
+      const passHash=await hashPass(pass);
+      const {error}=await sb.from('staff').insert({name,login,pass_hash:passHash,role});
+      if(error) throw error;
+    }
+  }
+  const {count:servCount,error:e2}=await sb.from('services').select('*',{count:'exact',head:true});
+  if(e2) throw e2;
+  if(!servCount){ await sb.from('services').insert([{name:'Ko‘rik',price:50000},{name:'Professional tozalash',price:300000},{name:'Plomba',price:350000}]); }
+  const {count:docCount,error:e3}=await sb.from('doctors').select('*',{count:'exact',head:true});
+  if(e3) throw e3;
+  if(!docCount){ await sb.from('doctors').insert([{name:'Isroilov Azizbek',phone:''}]); }
+}
+async function loadAll(){
+  const [patRes,docRes,servRes,apptRes,finRes,invRes,stfRes]=await Promise.all([
+    sb.from('patients').select('*').order('id'),
+    sb.from('doctors').select('*').order('id'),
+    sb.from('services').select('*').order('id'),
+    sb.from('appointments').select('*').order('id'),
+    sb.from('finance').select('*').order('id'),
+    sb.from('invoices').select('*').order('id'),
+    sb.from('staff').select('*').order('id')
+  ]);
+  for(const r of [patRes,docRes,servRes,apptRes,finRes,invRes,stfRes]) if(r.error) throw r.error;
+  S.patients=patRes.data.map(r=>({id:r.id,name:r.name,phone:r.phone,birth:r.birth,note:r.note,created:r.created,dental:r.dental||{}}));
+  S.doctors=docRes.data.map(r=>({id:r.id,name:r.name,phone:r.phone}));
+  S.services=servRes.data.map(r=>({id:r.id,name:r.name,price:r.price}));
+  S.appointments=apptRes.data.map(r=>({id:r.id,date:r.date,time:r.time,patient:r.patient_id,doctor:r.doctor_id,service:r.service_id,status:r.status,note:r.note,reminded:r.reminded}));
+  S.finance=finRes.data.map(r=>({id:r.id,type:r.type,date:r.date,patient:r.patient_id,doctor:r.doctor_id,service:r.service_id,amount:r.amount,payment:r.payment,note:r.note}));
+  S.invoices=invRes.data.map(r=>({id:r.id,patient:r.patient_id,doctor:r.doctor_id,service:r.service_id,appointment:r.appointment_id,date:r.date,amount:r.amount,paid:r.paid}));
+  S.staff=stfRes.data.map(r=>({id:r.id,name:r.name,login:r.login,passHash:r.pass_hash,role:r.role}));
+}
+async function manualRefresh(){
+  const el=document.getElementById('syncStatus'); if(el) el.textContent='Yangilanmoqda...';
+  try{ await loadAll(); if(me) render(); if(el) el.textContent='Yangilandi: '+new Date().toLocaleTimeString('uz-UZ'); }
+  catch(e){ if(el) el.textContent='Xatolik'; console.error(e); }
+}
+function withTimeout(promise,ms,label){
+  return Promise.race([
+    promise,
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error((label||'Amal')+' juda uzoq davom etdi (timeout). Internetni tekshirib, qayta urining.')),ms))
+  ]);
+}
+async function boot(){
+  const btn=document.querySelector('#login .primary'); if(btn) btn.disabled=true;
+  loginErr.style.color='var(--muted)'; loginErr.textContent='Bulutga ulanmoqda...';
+  dataReady=false;
+  try{
+    if(!window.supabase) throw new Error('Supabase kutubxonasi yuklanmadi. Internet aloqasini tekshiring.');
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    await withTimeout(ensureSalt(),12000,'Ulanish');
+    await withTimeout(ensureSeed(),12000,'Boshlang‘ich sozlash');
+    await withTimeout(loadAll(),12000,'Ma’lumot yuklash');
+    loginErr.textContent=''; loginErr.style.color='var(--danger)';
+    dataReady=true;
+  }catch(e){
+    console.error(e);
+    loginErr.style.color='var(--danger)';
+    loginErr.innerHTML='Ulanishda xatolik: '+(e.message||e)+'<br><button class="secondary" style="margin-top:8px" onclick="boot()">↻ Qayta urinish</button>';
+  }finally{
+    if(btn) btn.disabled=false;
+  }
+}
+boot();
+setInterval(()=>{ if(me) manualRefresh(); }, 20000);
+
+/* ---------- auth ---------- */
+async function doLogin(){
+  if(!dataReady){ loginErr.style.color='var(--muted)'; loginErr.textContent='Iltimos, biroz kuting — ma’lumotlar yuklanmoqda...'; return; }
+  const u=loginUser.value.trim(), p=loginPass.value;
+  const user=S.staff.find(x=>x.login===u);
+  loginErr.style.color='var(--danger)'; loginErr.textContent='';
+  if(!user){ loginErr.textContent='Login yoki parol noto‘g‘ri'; return }
+  const h=await hashPass(p);
+  if(h!==user.passHash){ loginErr.textContent='Login yoki parol noto‘g‘ri'; return }
+  me=user; login.classList.add('hidden'); app.classList.remove('hidden');
+  who.textContent=me.name+' • '+me.role; show('dashboard');
+}
+function logout(){me=null;app.classList.add('hidden');login.classList.remove('hidden')}
+
+/* ---------- nav ---------- */
+function show(id){
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  document.getElementById('n-'+id).classList.add('active');
+  title.textContent=document.querySelector('#n-'+id).textContent;
+  render();
+}
+function render(){renderDashboard();renderPatients();renderAppointments();renderReminders();renderServices();renderDoctors();renderFinance();renderDebts();renderReports();renderStaff()}
+function openModal(t,body){mTitle.textContent=t;mBody.innerHTML=body;modal.classList.add('show')}
+function closeModal(){modal.classList.remove('show')}
+async function del(table,id){
+  if(!confirm('O‘chirishni tasdiqlaysizmi?'))return;
+  const {error}=await sb.from(table).delete().eq('id',id);
+  if(error){ alert('O‘chirib bo‘lmadi: bu yozuvga bog‘liq boshqa ma’lumotlar mavjud.'); return }
+  await loadAll(); render();
+}
+
+/* ---------- debt helpers ---------- */
+function invoiceStatus(inv){const rem=inv.amount-inv.paid;if(rem<=0)return'paid';if(inv.paid>0)return'partial';return'unpaid'}
+function patientDebt(pid){return S.invoices.filter(i=>i.patient===pid).reduce((a,i)=>a+Math.max(0,i.amount-i.paid),0)}
+function totalDebt(){return S.invoices.reduce((a,i)=>a+Math.max(0,i.amount-i.paid),0)}
+
+/* ---------- patients ---------- */
+function openPatient(){
+  openModal('Yangi bemor',`<div class="formgrid">
+  <div class="field"><label>F.I.Sh.</label><input id="fName"></div>
+  <div class="field"><label>Telefon</label><input id="fPhone" placeholder="+998..."></div>
+  <div class="field"><label>Tug‘ilgan sana</label><input id="fBirth" type="date"></div>
+  <div class="field"><label>Izoh</label><input id="fNote"></div>
+  </div><div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addPatient()">Saqlash</button></div>`);
+}
+async function addPatient(){
+  const name=fName.value.trim(); if(!name)return alert('F.I.Sh. kiriting');
+  const {error}=await sb.from('patients').insert({name,phone:fPhone.value,birth:fBirth.value||null,note:fNote.value,created:today(),dental:{}});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderPatients(){
+  const q=(document.getElementById('pSearch')?.value||'').toLowerCase();
+  const a=S.patients.filter(x=>(x.name+' '+(x.phone||'')).toLowerCase().includes(q));
+  patientsTable.innerHTML = a.length ? `<table><tr><th>#</th><th>Bemor</th><th>Telefon</th><th>Tug‘ilgan</th><th>Qarz</th><th>Amal</th></tr>${a.map(x=>{
+    const debt=patientDebt(x.id);
+    return `<tr><td>${x.id}</td><td>${x.name}</td><td>${x.phone||'-'}</td><td>${x.birth||'-'}</td>
+    <td>${debt>0?`<span class="pill debt">${money(debt)}</span>`:'<span class="pill paid">Yo‘q</span>'}</td>
+    <td><button class="secondary" onclick="openDental(${x.id})">🦷 Tish xaritasi</button> <button class="danger" onclick="del('patients',${x.id})">O‘chirish</button></td></tr>`;
+  }).join('')}</table>` : `<div class="empty">Bemor topilmadi</div>`;
+}
+
+/* ---------- tooth chart ---------- */
+function toothStatus(p,num){const h=p.dental[num];return h&&h.length?h[h.length-1].status:'healthy'}
+function toothLabel(st){return (TOOTH_STATUSES.find(x=>x[0]===st)||['healthy','Sog‘lom'])[1]}
+function renderToothRow(p,nums){
+  return `<div class="toothrow">${nums.map(n=>{const st=toothStatus(p,n);
+    return `<button class="tooth t-${st}" onclick="openTooth(${p.id},${n})"><span class="tnum">${n}</span></button>`}).join('')}</div>`;
+}
+function openDental(pid){
+  const p=S.patients.find(x=>x.id===pid); if(!p)return;
+  p.dental=p.dental||{};
+  openModal('Tish xaritasi — '+p.name, `
+  <div class="mouth">
+    ${renderToothRow(p,TEETH_TOP)}
+    ${renderToothRow(p,TEETH_BOTTOM)}
+    <div class="legend">
+      <span><i class="t-healthy" style="border:1px solid var(--line)"></i>Sog‘lom</span>
+      <span><i class="t-caries"></i>Karies</span>
+      <span><i class="t-treated"></i>Davolangan</span>
+      <span><i class="t-crown"></i>Koronka</span>
+      <span><i class="t-missing"></i>Yo‘q</span>
+      <span><i class="t-implant"></i>Implant</span>
+    </div>
+  </div>
+  <p class="muted small" style="text-align:center">Tishni bosib holatini o‘zgartirish va davolash tarixini ko‘rish mumkin.</p>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Yopish</button></div>`);
+}
+function openTooth(pid,num){
+  const p=S.patients.find(x=>x.id===pid); if(!p)return;
+  p.dental=p.dental||{}; const hist=(p.dental[num]||[]).slice().reverse();
+  openModal(`Tish #${num} — ${p.name}`, `
+  <div class="formgrid">
+    <div class="field"><label>Holat</label><select id="tfStatus">${TOOTH_STATUSES.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select></div>
+    <div class="field"><label>Sana</label><input id="tfDate" type="date" value="${today()}"></div>
+    <div class="field full"><label>Izoh</label><input id="tfNote" placeholder="Masalan: chuqur karies, ikkinchi seans kerak"></div>
+  </div>
+  <div class="actions">
+    <button class="secondary" onclick="openDental(${pid})">← Orqaga</button>
+    <button class="primary" onclick="saveTooth(${pid},${num})">Saqlash</button>
+  </div>
+  <h3 style="margin-top:18px">Davolash tarixi</h3>
+  ${hist.length ? hist.map(h=>`<div class="histrow"><span>${h.date} — ${toothLabel(h.status)}</span><span class="muted">${h.note||''}</span></div>`).join('') : '<div class="empty small">Tarix yo‘q</div>'}
+  `);
+}
+async function saveTooth(pid,num){
+  const p=S.patients.find(x=>x.id===pid); if(!p)return;
+  p.dental=p.dental||{}; const hist=p.dental[num]||[];
+  const entry={date:tfDate.value||today(),status:tfStatus.value,note:tfNote.value};
+  const newDental={...p.dental,[num]:[...hist,entry]};
+  const {error}=await sb.from('patients').update({dental:newDental}).eq('id',pid);
+  if(error) return alert('Xatolik: '+error.message);
+  await loadAll();
+  openTooth(pid,num);
+}
+
+/* ---------- appointments ---------- */
+function openAppt(){
+  const ps=S.patients.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+  const ds=S.doctors.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+  const ss=S.services.map(x=>`<option value="${x.id}">${x.name} — ${money(x.price)}</option>`).join('');
+  openModal('Yangi qabul',`<div class="formgrid">
+  <div class="field"><label>Sana</label><input id="afDate" type="date" value="${today()}"></div>
+  <div class="field"><label>Vaqt</label><input id="afTime" type="time" value="09:00"></div>
+  <div class="field"><label>Bemor</label><select id="afPatient">${ps}</select></div>
+  <div class="field"><label>Shifokor</label><select id="afDoctor">${ds}</select></div>
+  <div class="field full"><label>Xizmat</label><select id="afService">${ss}</select></div>
+  <div class="field full"><label>Izoh</label><textarea id="afNote"></textarea></div>
+  </div><div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addAppt()">Saqlash</button></div>`);
+}
+async function addAppt(){
+  if(!afPatient.value)return alert('Avval bemor qo‘shing');
+  const {error}=await sb.from('appointments').insert({date:afDate.value,time:afTime.value,patient_id:+afPatient.value,doctor_id:+afDoctor.value,service_id:+afService.value,status:'Rejalashtirilgan',note:afNote.value,reminded:false});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderAppointments(){
+  const d=document.getElementById('aDate'); if(d&&!d.value)d.value=today();
+  const date=d?.value||today();
+  const a=S.appointments.filter(x=>x.date===date).sort((x,y)=>x.time.localeCompare(y.time));
+  apptTable.innerHTML = a.length ? `<table><tr><th>Vaqt</th><th>Bemor</th><th>Shifokor</th><th>Xizmat</th><th>Holat</th><th>Amal</th></tr>${a.map(x=>
+    `<tr><td>${x.time}</td><td>${pn(x.patient)}</td><td>${dn(x.doctor)}</td><td>${sn(x.service)}</td><td><span class="pill">${x.status}</span></td>
+    <td>${x.status==='Rejalashtirilgan'?`<button class="secondary" onclick="openCompletePay(${x.id})">Yakunlash</button>`:''} <button class="danger" onclick="del('appointments',${x.id})">×</button></td></tr>`
+  ).join('')}</table>` : `<div class="empty">Bu kunga qabul yo‘q</div>`;
+}
+function openCompletePay(id){
+  const x=S.appointments.find(a=>a.id===id); if(!x)return;
+  const s=S.services.find(y=>y.id===x.service); const price=s?.price||0;
+  openModal('Qabulni yakunlash — '+pn(x.patient), `
+  <div class="formgrid">
+    <div class="field"><label>Xizmat narxi</label><input id="cpAmount" type="number" value="${price}" oninput="updateDebtPreview()"></div>
+    <div class="field"><label>Hozir to‘langan summa</label><input id="cpPaid" type="number" value="${price}" oninput="updateDebtPreview()"></div>
+    <div class="field full"><label>To‘lov turi</label><select id="cpPay"><option>Naqd</option><option>Karta</option><option>O‘tkazma</option></select></div>
+  </div>
+  <p>Qoladigan qarz: <span class="debtline zero" id="cpDebtPreview">0 so‘m</span></p>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="finalizeComplete(${id})">Saqlash</button></div>`);
+  updateDebtPreview();
+}
+function updateDebtPreview(){
+  const amount=+cpAmount.value||0, paid=+cpPaid.value||0, rem=Math.max(0,amount-paid);
+  cpDebtPreview.textContent=money(rem);
+  cpDebtPreview.className='debtline '+(rem>0?'pos':'zero');
+}
+async function finalizeComplete(id){
+  const x=S.appointments.find(a=>a.id===id); if(!x)return;
+  const amount=+cpAmount.value||0, paidNow=Math.min(+cpPaid.value||0,amount), pay=cpPay.value;
+  const {error:e1}=await sb.from('appointments').update({status:'Yakunlandi'}).eq('id',id);
+  if(e1) return alert('Xatolik: '+e1.message);
+  const {data:invData,error:e2}=await sb.from('invoices').insert({patient_id:x.patient,doctor_id:x.doctor,service_id:x.service,appointment_id:x.id,date:x.date,amount,paid:paidNow}).select();
+  if(e2) return alert('Xatolik: '+e2.message);
+  if(paidNow>0){
+    const invId=invData[0].id;
+    await sb.from('finance').insert({type:'in',date:x.date,patient_id:x.patient,doctor_id:x.doctor,service_id:x.service,amount:paidNow,payment:pay,note:'Qabul uchun to‘lov (invoice #'+invId+')'});
+  }
+  closeModal(); await loadAll(); render();
+}
+
+/* ---------- reminders ---------- */
+function renderReminders(){
+  const now=new Date(); const limit=new Date(now.getTime()+3*24*3600*1000);
+  const upcoming=S.appointments.filter(x=>x.status==='Rejalashtirilgan' && !x.reminded && new Date(x.date)>=new Date(today()) && new Date(x.date)<=limit)
+    .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  remindersTable.innerHTML = upcoming.length ? `<table><tr><th>Sana</th><th>Vaqt</th><th>Bemor</th><th>Telefon</th><th>Xizmat</th><th>Amal</th></tr>${upcoming.map(x=>{
+    const phone=pp(x.patient);
+    const text=encodeURIComponent(`Assalomu alaykum, ${pn(x.patient)}! Sizni ${x.date} kuni soat ${x.time}da qabulga kutamiz. AIDENT Dental Clinic.`);
+    return `<tr><td>${x.date}</td><td>${x.time}</td><td>${pn(x.patient)}</td><td>${phone||'-'}</td><td>${sn(x.service)}</td>
+    <td>${phone?`<a class="secondary" style="padding:9px 12px;border-radius:9px;text-decoration:none;color:var(--ink)" href="sms:${phone}?body=${text}">📩 SMS</a>`:''} <button class="secondary" onclick="markReminded(${x.id})">Belgilash</button></td></tr>`;
+  }).join('')}</table>` : `<div class="empty">Yaqin kunlarda eslatma kerak bo‘lgan qabullar yo‘q</div>`;
+}
+async function markReminded(id){
+  const {error}=await sb.from('appointments').update({reminded:true}).eq('id',id);
+  if(error) return alert('Xatolik: '+error.message);
+  await loadAll(); render();
+}
+
+/* ---------- services / doctors ---------- */
+function openService(){
+  openModal('Xizmat',`<div class="formgrid"><div class="field"><label>Nomi</label><input id="sfName"></div><div class="field"><label>Narxi</label><input id="sfPrice" type="number"></div></div>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addServiceInline()">Saqlash</button></div>`);
+}
+async function addServiceInline(){
+  const name=sfName.value.trim(); if(!name)return alert('Nomi kiriting');
+  const {error}=await sb.from('services').insert({name,price:+sfPrice.value||0});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderServices(){
+  servicesTable.innerHTML = S.services.length ? `<table><tr><th>#</th><th>Xizmat</th><th>Narx</th><th>Amal</th></tr>${S.services.map(x=>
+    `<tr><td>${x.id}</td><td>${x.name}</td><td>${money(x.price)}</td><td><button class="danger" onclick="del('services',${x.id})">O‘chirish</button></td></tr>`).join('')}</table>` : `<div class="empty">Xizmat yo‘q</div>`;
+}
+function openDoctor(){
+  openModal('Shifokor',`<div class="formgrid"><div class="field"><label>F.I.Sh.</label><input id="dfName"></div><div class="field"><label>Telefon</label><input id="dfPhone"></div></div>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addDoctorInline()">Saqlash</button></div>`);
+}
+async function addDoctorInline(){
+  const name=dfName.value.trim(); if(!name)return alert('Ism kiriting');
+  const {error}=await sb.from('doctors').insert({name,phone:dfPhone.value});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderDoctors(){
+  doctorsTable.innerHTML = S.doctors.length ? `<table><tr><th>#</th><th>Shifokor</th><th>Telefon</th><th>Amal</th></tr>${S.doctors.map(x=>
+    `<tr><td>${x.id}</td><td>${x.name}</td><td>${x.phone||'-'}</td><td><button class="danger" onclick="del('doctors',${x.id})">O‘chirish</button></td></tr>`).join('')}</table>` : `<div class="empty">Shifokor yo‘q</div>`;
+}
+
+/* ---------- finance ---------- */
+function openFinance(type){
+  openModal(type==='in'?'Kirim':'Chiqim',`<div class="formgrid">
+  <div class="field"><label>Sana</label><input id="ffDate" type="date" value="${today()}"></div>
+  <div class="field"><label>Summa</label><input id="ffAmount" type="number"></div>
+  <div class="field"><label>To‘lov turi</label><select id="ffPay"><option>Naqd</option><option>Karta</option><option>O‘tkazma</option></select></div>
+  <div class="field"><label>Izoh</label><input id="ffNote"></div></div>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addFinanceInline('${type}')">Saqlash</button></div>`);
+}
+async function addFinanceInline(type){
+  const {error}=await sb.from('finance').insert({type,date:ffDate.value,amount:+ffAmount.value||0,payment:ffPay.value,note:ffNote.value});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderFinance(){
+  const a=S.finance.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  financeTable.innerHTML = a.length ? `<table><tr><th>Sana</th><th>Turi</th><th>Summa</th><th>To‘lov</th><th>Izoh</th><th>Amal</th></tr>${a.map(x=>
+    `<tr><td>${x.date}</td><td>${x.type==='in'?'Kirim':'Chiqim'}</td><td>${money(x.amount)}</td><td>${x.payment||'-'}</td><td>${x.note||'-'}</td><td><button class="danger" onclick="del('finance',${x.id})">×</button></td></tr>`).join('')}</table>` : `<div class="empty">Yozuv yo‘q</div>`;
+}
+function sum(type,datePrefix){return S.finance.filter(x=>x.type===type&&(!datePrefix||x.date.startsWith(datePrefix))).reduce((a,b)=>a+Number(b.amount||0),0)}
+
+/* ---------- debts ---------- */
+function renderDebts(){
+  const onlyDebt=document.getElementById('onlyDebt')?.checked ?? true;
+  let list=S.invoices.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(onlyDebt) list=list.filter(i=>i.amount-i.paid>0);
+  debtsTable.innerHTML = list.length ? `<table><tr><th>Sana</th><th>Bemor</th><th>Xizmat</th><th>Shifokor</th><th>Summa</th><th>To‘langan</th><th>Qarz</th><th>Holat</th><th>Amal</th></tr>${list.map(i=>{
+    const rem=i.amount-i.paid; const st=invoiceStatus(i);
+    const stLabel=st==='paid'?'To‘langan':st==='partial'?'Qisman':'To‘lanmagan';
+    const stClass=st==='paid'?'paid':st==='partial'?'partial':'debt';
+    return `<tr><td>${i.date}</td><td>${pn(i.patient)}</td><td>${sn(i.service)}</td><td>${dn(i.doctor)}</td><td>${money(i.amount)}</td><td>${money(i.paid)}</td><td>${money(rem)}</td>
+    <td><span class="pill ${stClass}">${stLabel}</span></td><td>${rem>0?`<button class="primary" onclick="openAddPayment(${i.id})">To‘lov qo‘shish</button>`:''}</td></tr>`;
+  }).join('')}</table>` : `<div class="empty">Qarzdorlik yo‘q</div>`;
+}
+function openAddPayment(invId){
+  const inv=S.invoices.find(i=>i.id===invId); if(!inv)return;
+  const rem=inv.amount-inv.paid;
+  openModal('To‘lov qo‘shish — '+pn(inv.patient), `
+  <p class="muted">Qoladigan qarz: <b>${money(rem)}</b></p>
+  <div class="formgrid">
+    <div class="field"><label>To‘lov summasi</label><input id="apAmount" type="number" value="${rem}" max="${rem}"></div>
+    <div class="field"><label>To‘lov turi</label><select id="apPay"><option>Naqd</option><option>Karta</option><option>O‘tkazma</option></select></div>
+  </div>
+  <div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="saveAddPayment(${invId})">Saqlash</button></div>`);
+}
+async function saveAddPayment(invId){
+  const inv=S.invoices.find(i=>i.id===invId); if(!inv)return;
+  const rem=inv.amount-inv.paid;
+  let amt=+apAmount.value||0; if(amt<=0)return alert('Summani kiriting'); if(amt>rem)amt=rem;
+  const newPaid=inv.paid+amt;
+  const {error:e1}=await sb.from('invoices').update({paid:newPaid}).eq('id',invId);
+  if(e1) return alert('Xatolik: '+e1.message);
+  const {error:e2}=await sb.from('finance').insert({type:'in',date:today(),patient_id:inv.patient,doctor_id:inv.doctor,service_id:inv.service,amount:amt,payment:apPay.value,note:'Qarz to‘lovi (invoice #'+inv.id+')'});
+  if(e2) return alert('Xatolik: '+e2.message);
+  closeModal(); await loadAll(); render();
+}
+
+/* ---------- dashboard ---------- */
+function renderDashboard(){
+  const i=sum('in',today()), o=sum('out',today());
+  dIn.textContent=money(i); dOut.textContent=money(o); dProfit.textContent=money(i-o);
+  const a=S.appointments.filter(x=>x.date===today());
+  dAppt.textContent=a.length;
+  dashAppts.innerHTML = a.length ? a.slice(0,6).map(x=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${x.time}</b> — ${pn(x.patient)}<br><small class="muted">${sn(x.service)} • ${dn(x.doctor)}</small></div>`).join('') : '<div class="empty small">Bugun qabul yo‘q</div>';
+  dashFin.innerHTML=`Kirim: <b>${money(i)}</b><br>Chiqim: <b>${money(o)}</b><br>Sof: <b>${money(i-o)}</b>`;
+  const td=totalDebt();
+  dashDebt.innerHTML = `<span class="debtline ${td>0?'pos':'zero'}">${money(td)}</span>`;
+}
+
+/* ---------- reports ---------- */
+function renderReports(){
+  const pref=today().slice(0,7);
+  const i=sum('in',pref), o=sum('out',pref);
+  rIn.textContent=money(i); rOut.textContent=money(o); rProfit.textContent=money(i-o); rPatients.textContent=S.patients.length;
+  const days=[]; for(let k=6;k>=0;k--){const d=new Date(); d.setDate(d.getDate()-k); days.push(d.toISOString().slice(0,10))}
+  const mx=Math.max(1,...days.map(d=>sum('in',d)));
+  chart.innerHTML=days.map(d=>`<div class="bar" style="height:${Math.max(4,sum('in',d)/mx*170)}px" title="${d}: ${money(sum('in',d))}"><span>${d.slice(5)}</span></div>`).join('');
+
+  const monthInv=S.invoices.filter(x=>x.date.startsWith(pref));
+  const byDoc={}; monthInv.forEach(x=>{byDoc[x.doctor]=byDoc[x.doctor]||{rev:0,cnt:0};byDoc[x.doctor].rev+=x.amount;byDoc[x.doctor].cnt++});
+  const docRows=Object.entries(byDoc).sort((a,b)=>b[1].rev-a[1].rev);
+  rByDoctor.innerHTML = docRows.length ? docRows.map(([id,v])=>`<div class="histrow"><span>${dn(id)}</span><span><b>${money(v.rev)}</b> <span class="muted small">(${v.cnt} qabul)</span></span></div>`).join('') : '<div class="empty small">Ma’lumot yo‘q</div>';
+
+  const byServ={}; monthInv.forEach(x=>{byServ[x.service]=byServ[x.service]||{rev:0,cnt:0};byServ[x.service].rev+=x.amount;byServ[x.service].cnt++});
+  const servRows=Object.entries(byServ).sort((a,b)=>b[1].rev-a[1].rev);
+  rByService.innerHTML = servRows.length ? servRows.map(([id,v])=>`<div class="histrow"><span>${sn(id)}</span><span><b>${money(v.rev)}</b> <span class="muted small">(${v.cnt} marta)</span></span></div>`).join('') : '<div class="empty small">Ma’lumot yo‘q</div>';
+}
+
+/* ---------- staff ---------- */
+function openStaff(){
+  if(me?.role!=='admin')return alert('Faqat admin xodim boshqaradi');
+  openModal('Xodim',`<div class="formgrid">
+  <div class="field"><label>Ism</label><input id="xfName"></div>
+  <div class="field"><label>Login</label><input id="xfLogin"></div>
+  <div class="field"><label>Parol</label><input id="xfPass" type="password"></div>
+  <div class="field"><label>Rol</label><select id="xfRole"><option>reception</option><option>doctor</option><option>accountant</option><option>admin</option></select></div>
+  </div><div class="actions"><button class="secondary" onclick="closeModal()">Bekor</button><button class="primary" onclick="addStaff()">Saqlash</button></div>`);
+}
+async function addStaff(){
+  const name=xfName.value.trim(), login=xfLogin.value.trim(), pass=xfPass.value;
+  if(!name||!login||!pass)return alert('Barcha maydonlarni to‘ldiring');
+  if(S.staff.some(x=>x.login===login))return alert('Bu login band');
+  const passHash=await hashPass(pass);
+  const {error}=await sb.from('staff').insert({name,login,pass_hash:passHash,role:xfRole.value});
+  if(error) return alert('Xatolik: '+error.message);
+  closeModal(); await loadAll(); render();
+}
+function renderStaff(){
+  staffTable.innerHTML=`<table><tr><th>#</th><th>Xodim</th><th>Login</th><th>Rol</th><th>Amal</th></tr>${S.staff.map(x=>
+    `<tr><td>${x.id}</td><td>${x.name}</td><td>${x.login}</td><td>${x.role}</td><td>${x.id===S.staff[0]?.id?'<span class="muted small">Asosiy admin</span>':`<button class="danger" onclick="del('staff',${x.id})">O‘chirish</button>`}</td></tr>`).join('')}</table>`;
+}
+
+/* ---------- backup / restore / reset (cloud) ---------- */
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='AIDENT_backup_'+today()+'.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function restoreBackup(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{ handleRestore(r.result); e.target.value=''; };
+  r.readAsText(f);
+}
+async function handleRestore(text){
+  let d;
+  try{ d=JSON.parse(text); if(!d.patients||!d.finance) throw 0; }catch(_){ return alert('Backup fayli noto‘g‘ri') }
+  if(!confirm('DIQQAT: Joriy bulutdagi BARCHA ma’lumotlar backup fayldagi ma’lumotlar bilan almashtiriladi. Bu amalni orqaga qaytarib bo‘lmaydi. Davom etamizmi?'))return;
+  try{
+    await sb.from('invoices').delete().neq('id',0);
+    await sb.from('finance').delete().neq('id',0);
+    await sb.from('appointments').delete().neq('id',0);
+    await sb.from('patients').delete().neq('id',0);
+    await sb.from('doctors').delete().neq('id',0);
+    await sb.from('services').delete().neq('id',0);
+    await sb.from('staff').delete().neq('id',0);
+
+    const docMap={}, servMap={}, patMap={}, apptMap={};
+
+    for(const doc of (d.doctors||[])){
+      const {data,error}=await sb.from('doctors').insert({name:doc.name,phone:doc.phone||''}).select();
+      if(error) throw error; docMap[doc.id]=data[0].id;
+    }
+    for(const s of (d.services||[])){
+      const {data,error}=await sb.from('services').insert({name:s.name,price:s.price||0}).select();
+      if(error) throw error; servMap[s.id]=data[0].id;
+    }
+    for(const st of (d.staff||[])){
+      let passHash=st.passHash;
+      if(!passHash && st.pass) passHash=await hashPass(st.pass);
+      if(!passHash) continue;
+      const {error}=await sb.from('staff').insert({name:st.name,login:st.login,pass_hash:passHash,role:st.role});
+      if(error) throw error;
+    }
+    for(const p of (d.patients||[])){
+      const {data,error}=await sb.from('patients').insert({name:p.name,phone:p.phone||'',birth:p.birth||null,note:p.note||'',created:p.created||today(),dental:p.dental||{}}).select();
+      if(error) throw error; patMap[p.id]=data[0].id;
+    }
+    for(const a of (d.appointments||[])){
+      const {data,error}=await sb.from('appointments').insert({date:a.date,time:a.time,patient_id:patMap[a.patient]||null,doctor_id:docMap[a.doctor]||null,service_id:servMap[a.service]||null,status:a.status||'Rejalashtirilgan',note:a.note||'',reminded:!!a.reminded}).select();
+      if(error) throw error; apptMap[a.id]=data[0].id;
+    }
+    for(const f of (d.finance||[])){
+      const {error}=await sb.from('finance').insert({type:f.type,date:f.date,patient_id:patMap[f.patient]||null,doctor_id:docMap[f.doctor]||null,service_id:servMap[f.service]||null,amount:f.amount||0,payment:f.payment||'',note:f.note||''});
+      if(error) throw error;
+    }
+    for(const inv of (d.invoices||[])){
+      const {error}=await sb.from('invoices').insert({patient_id:patMap[inv.patient]||null,doctor_id:docMap[inv.doctor]||null,service_id:servMap[inv.service]||null,appointment_id:apptMap[inv.appointment]||null,date:inv.date,amount:inv.amount||0,paid:inv.paid||0});
+      if(error) throw error;
+    }
+    await loadAll(); render();
+    alert('Backup muvaffaqiyatli tiklandi.');
+  }catch(err){
+    console.error(err);
+    alert('Tiklashda xatolik: '+(err.message||err));
+    await loadAll(); render();
+  }
+}
+async function resetData(){
+  if(!confirm('DIQQAT: Bulutdagi barcha ma’lumotlar butunlay o‘chadi (barcha qurilmalar uchun). Davom etilsinmi?'))return;
+  if(!confirm('Haqiqatan ham davom etamizmi? Bu amalni orqaga qaytarib bo‘lmaydi.'))return;
+  await sb.from('invoices').delete().neq('id',0);
+  await sb.from('finance').delete().neq('id',0);
+  await sb.from('appointments').delete().neq('id',0);
+  await sb.from('patients').delete().neq('id',0);
+  await sb.from('doctors').delete().neq('id',0);
+  await sb.from('services').delete().neq('id',0);
+  await sb.from('staff').delete().neq('id',0);
+  await ensureSeed();
+  await loadAll();
+  alert('Barcha ma’lumot tozalandi va standart holatga qaytarildi.');
+  logout();
+}
+
+</script>
+</body></html>
